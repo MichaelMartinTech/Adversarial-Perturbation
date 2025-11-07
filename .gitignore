@@ -1,1 +1,5 @@
 .DS_Store
+lightshed_model.py
+
+/__pycache__
+/xai_final_venv
