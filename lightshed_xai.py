@@ -2,10 +2,14 @@ import torch
 from torchvision import transforms
 from PIL import Image
 import os
+from enum import Enum
 import argparse
 from lightshed_model import setup_generator, load_checkpoint
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from sklearn.manifold import TSNE
 import numpy as np
+import xai_utils as xu
 
 
 def get_device():
@@ -33,7 +37,7 @@ def load_image(img_path):
             print(e)
             return None
     else:
-        print('--image must be .jpg, .jpeg, or .png')
+        print(img_path + ' is not a valid image file')
         return None
         
 def show_feature_maps(tensors: dict, n=10):
@@ -50,7 +54,8 @@ def show_feature_maps(tensors: dict, n=10):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--pth', required=True, help='The path to the checkpoint file')
-    parser.add_argument('--image', required=True, help='The path to the input image')
+    parser.add_argument('--image', help='The path to the input image')
+    parser.add_argument('--folder', help='The path to the directory containing input images')
     parser.add_argument('--mode', default='activation', 
                         help="The XAI method to use. Valid arguments: 'activation', 'tsne', 'filter'")
     arg_list = parser.parse_args()
@@ -71,6 +76,9 @@ if __name__ == '__main__':
     generator.eval()
 
     if arg_list.mode == 'activation':
+        if not arg_list.image:
+            print('activation mode requires --image argument')
+            quit()
         # Load image
         img = load_image(arg_list.image)
 
@@ -99,7 +107,53 @@ if __name__ == '__main__':
         show_feature_maps(activations)
 
     elif arg_list.mode == 'tsne':
-        print('Work in progress')
+        if not arg_list.folder:
+            print('activation mode requires --folder argument')
+            quit()
+        
+        # File handling
+        directory = arg_list.folder
+        if not os.path.exists(directory):
+            print(f'{directory} does not exist')
+        elif not os.path.isdir(directory):
+            print(f'{directory} is not a directory')
+        else:
+            # Prepare data
+            tensors = []
+            colors = []
+            for p in os.listdir(directory):
+                img = load_image(f'{directory}/{p}')
+                if img is not None:
+                    # Build color key
+                    if xu.is_shaded_glazed(p):
+                        colors.append(xu.Plot_Colors.NS_GL)
+                    elif xu.is_glazed(p):
+                        colors.append(xu.Plot_Colors.GLAZE)
+                    elif xu.is_shaded(p):
+                        colors.append(xu.Plot_Colors.SHADE)
+                    else:
+                        colors.append(xu.Plot_Colors.CLEAN)
+                    
+                    # Process data / partial forward pass
+                    with torch.no_grad():
+                        img = img.to(device)
+                        img = generator.encoder1(img)
+                        img = generator.encoder2(img)
+                        img = generator.encoder3(img)
+                        img = generator.encoder4(img)
+                    img = img.cpu()
+                    tensors.append(img.view(-1).numpy())
+            tensors_np = np.stack(tensors)
+
+            # Visualize
+            tsne = TSNE(n_components=2, perplexity=5, random_state=0)
+            img_tsne = tsne.fit_transform(tensors_np)
+
+            plt.figure(figsize=(8, 6))
+            plt.scatter(img_tsne[:, 0], img_tsne[:, 1], s=60, c=colors)
+            plt.title("t-SNE Visualization of Clean and Poisoned Images")
+            plt.legend(title='Legend', handles=xu.MPATCHES, loc='lower right')
+            plt.show()
 
     elif arg_list.mode == 'filter':
         enc1 = generator.encoder1[0]
