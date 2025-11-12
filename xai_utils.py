@@ -25,3 +25,5 @@ MPATCHES = [
     mpatches.Patch(color=Plot_Colors.SHADE, label='Shaded'),
     mpatches.Patch(color=Plot_Colors.NS_GL, label='Shaded then Glazed')
 ]
+
+PERPLEXITY = 20

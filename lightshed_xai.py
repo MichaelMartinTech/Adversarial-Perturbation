@@ -6,6 +6,7 @@ from enum import Enum
 import argparse
 from lightshed_model import setup_generator, load_checkpoint
 import matplotlib.pyplot as plt
+import mplcursors
 import matplotlib.patches as mpatches
 from sklearn.manifold import TSNE
 import numpy as np
@@ -41,7 +42,7 @@ def load_image(img_path):
         return None
         
 def show_feature_maps(tensors: dict, n=10):
-    fig, axes = plt.subplots(len(tensors), n, figsize=(15, 7))
+    fig, axes = plt.subplots(len(tensors), n, figsize=(15, 9))
     for i, key in enumerate(tensors):
         for j in range(n):
             axes[i, j].imshow(tensors[key][0, j].cpu(), cmap='viridis')
@@ -91,10 +92,11 @@ if __name__ == '__main__':
             return hook
         
         # Register hook
-        generator.encoder1[0].register_forward_hook(get_activation('enc1'))
-        generator.encoder2[0].register_forward_hook(get_activation('enc2'))
-        generator.encoder3[0].register_forward_hook(get_activation('enc3'))
-        generator.encoder4[0].register_forward_hook(get_activation('enc4'))
+        generator.encoder1[2].register_forward_hook(get_activation('enc1'))
+        generator.encoder2[2].register_forward_hook(get_activation('enc2'))
+        generator.encoder3[2].register_forward_hook(get_activation('enc3'))
+        generator.encoder4[2].register_forward_hook(get_activation('enc4'))
+        generator.bottleneck[2].register_forward_hook(get_activation('btnk'))
         
         # Forward pass
         with torch.no_grad():
@@ -121,9 +123,11 @@ if __name__ == '__main__':
             # Prepare data
             tensors = []
             colors = []
+            file_names = []
             for p in os.listdir(directory):
                 img = load_image(f'{directory}/{p}')
                 if img is not None:
+                    file_names.append(p)
                     # Build color key
                     if xu.is_shaded_glazed(p):
                         colors.append(xu.Plot_Colors.NS_GL)
@@ -141,18 +145,29 @@ if __name__ == '__main__':
                         img = generator.encoder2(img)
                         img = generator.encoder3(img)
                         img = generator.encoder4(img)
+                        img = generator.bottleneck[0](img)
                     img = img.cpu()
                     tensors.append(img.view(-1).numpy())
             tensors_np = np.stack(tensors)
 
             # Visualize
-            tsne = TSNE(n_components=2, perplexity=5, random_state=0)
+            tsne = TSNE(n_components=2, perplexity=xu.PERPLEXITY, random_state=0)
             img_tsne = tsne.fit_transform(tensors_np)
 
             plt.figure(figsize=(8, 6))
-            plt.scatter(img_tsne[:, 0], img_tsne[:, 1], s=60, c=colors)
-            plt.title("t-SNE Visualization of Clean and Poisoned Images")
-            plt.legend(title='Legend', handles=xu.MPATCHES, loc='lower right')
+            plot = plt.scatter(img_tsne[:, 0], img_tsne[:, 1], s=60, c=colors)
+
+            # Show file name on hover
+            cursor = mplcursors.cursor(plot, hover=True)
+
+            @cursor.connect('add')
+            def on_hover(sel):
+                i = sel.index
+                sel.annotation.set_text(file_names[i])
+                sel.annotation.get_bbox_patch().set(fc='white', alpha=0.8)
+
+            plt.title(f't-SNE Perplexity: {xu.PERPLEXITY}')
+            plt.legend(title='Legend', handles=xu.MPATCHES, loc='best')
             plt.show()
 
     elif arg_list.mode == 'filter':
