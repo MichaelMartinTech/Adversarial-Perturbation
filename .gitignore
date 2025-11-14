@@ -2,4 +2,5 @@
 lightshed_model.py
 
 /__pycache__
+/noise_data/results
 /xai_final_venv

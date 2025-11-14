@@ -13,14 +13,6 @@ import numpy as np
 import xai_utils as xu
 
 
-def get_device():
-    if torch.cuda.is_available():
-        return 'cuda'
-    elif torch.backends.mps.is_available():
-        return 'mps'
-    else:
-        return 'cpu'
-
 def load_image(img_path):
     extensions = {'.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG'}
     if os.path.splitext(img_path)[1] in extensions:
@@ -62,7 +54,7 @@ if __name__ == '__main__':
     arg_list = parser.parse_args()
 
     # Check for GPU
-    device = get_device()
+    device = xu.get_device()
     print(f'Device: {device}')
 
     # Load model

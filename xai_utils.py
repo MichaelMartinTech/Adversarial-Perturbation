@@ -1,6 +1,15 @@
+import torch
 from enum import Enum
 import matplotlib.patches as mpatches
 
+
+def get_device():
+    if torch.cuda.is_available():
+        return 'cuda'
+    elif torch.backends.mps.is_available():
+        return 'mps'
+    else:
+        return 'cpu'
 
 # Color coding for t-SNE
 class Plot_Colors(str, Enum):
