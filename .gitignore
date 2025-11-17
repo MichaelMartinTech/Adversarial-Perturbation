@@ -1,6 +1,7 @@
 .DS_Store
 lightshed_model.py
 
+/.idea
 /__pycache__
 /noise_data/results
 /xai_final_venv
