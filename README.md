@@ -61,5 +61,13 @@ Extracted:
 
 ---
 
-### **RQ3 – Entropy Experiments**
-(Revising)
+### **RQ3 – Entropy Experiments (Poison Detectability)**
+> Created custom synthetic poison patterns to test LightShed’s detectability  
+> Evaluated entropy using lossless compression as an approximate randomness metric
+
+- Generated multiple noise types (Gaussian, Clouds 2, Perlin, binary variants)  
+- Applied procedural masks at varying densities and lightness values  
+- Overlaid all noise–mask combinations onto a clean base image at 15% opacity  
+- Computed entropy for each composite image and measured LightShed reconstruction strength  
+- Higher-entropy, spatially irregular patterns showed reduced detectability  
+- Low-frequency or uniform patterns were more easily reconstructed by LightShed
