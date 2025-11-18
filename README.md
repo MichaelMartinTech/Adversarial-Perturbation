@@ -7,6 +7,12 @@ The project focuses on evaluating:
 - How entropy influences poison detectability
 - What visual patterns activate poison-sensitive neurons
 
+## System Setup & Experimental Reproducibility
+### MAC
+- To be added (G)
+### Windows
+- To be added (M)
+
 ## Research Questions
 ### RQ1 — Latent Representation
 How does LightShed represent clean vs. Glazed vs. Shaded images in feature space?
@@ -34,7 +40,40 @@ Extracted:
 - Decoder reconstructions
 - Reconstructed poison masks
 
-## MAC
-- To be added (G)
-## Windows
-- To be added (M)
+## Progress by Research Question
+
+### **RQ1 – Latent Clustering**
+- Extracted last-conv embeddings from LightShed encoder  
+- Reduced dimensionality using **t-SNE**  
+- Generated preliminary cluster maps  
+- Clean, Glaze, and Nightshade form distinct clusters  
+- **Nightshade → Glaze** overlaps strongly with **Glaze-only** (early finding)
+
+---
+
+### **RQ2 – Neuron Activation Maps (Feature Visualization)**
+> Implemented feature visualization on LightShed decoder  
+> Identified neurons consistently responding to:
+- High-frequency perturbation textures  
+- Glaze-specific patterns  
+- Nightshade-specific patterns  
+- Visualizations highlight recurring poison signatures
+
+---
+
+### **RQ3 – Entropy Experiments**
+Created 5 synthetic perturbation masks:
+
+1. Gaussian noise  
+2. Clouds 2  
+3. Perlin noise  
+4. Clouds 2 (binary)  
+5. Perlin (binary)  
+
+Performed:
+- Overlay at **20% opacity**  
+- Entropy computed using lossless compression ratio  
+- Correlated entropy vs. LightShed detectability  
+- Higher entropy → lower detectability
+
+
