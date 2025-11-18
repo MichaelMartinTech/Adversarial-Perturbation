@@ -62,18 +62,4 @@ Extracted:
 ---
 
 ### **RQ3 – Entropy Experiments**
-Created 5 synthetic perturbation masks:
-
-1. Gaussian noise  
-2. Clouds 2  
-3. Perlin noise  
-4. Clouds 2 (binary)  
-5. Perlin (binary)  
-
-Performed:
-- Overlay at **20% opacity**  
-- Entropy computed using lossless compression ratio  
-- Correlated entropy vs. LightShed detectability  
-- Higher entropy → lower detectability
-
-
+(Revising)
