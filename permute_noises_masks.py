@@ -4,7 +4,7 @@ from PIL import Image
 import numpy as np
 
 
-def load_image(img_path, mode):
+def load_image(img_path: str, mode: str) -> tuple[Image, str]:
     extensions = {'.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG'}
     if os.path.splitext(img_path)[1] in extensions:
         name = os.path.splitext(os.path.basename(img_path))[0]
