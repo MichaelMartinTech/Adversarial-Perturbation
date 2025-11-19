@@ -36,11 +36,15 @@ This project requires two files not published to this repository in compliance w
 
 ## Running
 
-- RQ1 - Visualizing Latent Clustering
+Commands are displayed over multiple lines for legibility.
+
+- **RQ1 - Visualizing Latent Clustering**
 
     _How do image models view original images compared to their Glazed or Shaded counterparts?_
     ```
-    python lightshed_xai.py --pth <*.pth>  --mode tsne --folder <directory>
+    python lightshed_xai.py --pth <*.pth>  
+                            --mode tsne 
+                            --folder <directory>
     ```
     We used `./tsne_data` for the `--folder` argument. Images in this directory must be in `jpg`, `jpeg`, or `png` format.
 
@@ -48,55 +52,55 @@ This project requires two files not published to this repository in compliance w
 
     For proper color coding, file names should contain the substring `glazed` for Glazed images, `shaded` for Shaded images, and both substrings if both poisoning techniques are used.
 
-- RQ2 - Visualizing Feature and Latent Activations
+- **RQ2 - Visualizing Feature and Latent Activations**
 
     _What do poison detection models look for?_
     ```
-    python lightshed_xai.py --pth <*.pth> --mode activation --image <filename>
+    python lightshed_xai.py --pth <*.pth> 
+                            --mode activation 
+                            --image <filename>
     ```
     We used individual images from the `./tsne_data` folder for the `--image` argument. Images must be in `jpg`, `jpeg`, or `png` format.
 
     This visualizes activations of the first 10 channels of each of the 5 encoding convolutional layers of LightShed.
 
-- RQ3 - Improving Perturbation Techniques
+- **RQ3 - Improving Perturbation Techniques**
 
     _What poisoning techniques, if any, can reliably avoid detection?_
     
-    To reduce the size of the repository, the set of images that are eventually passed through LightShed are omitted. They are constructed by combining images in the directories `./noise_data/procedurals`, `./noise_data/masks`, and `./noise_data/noises`.
+    To reduce the size of the repository, the set of images that are eventually passed through LightShed are omitted. They are constructed by combining images in the directories `./noise_data/bases`, `./noise_data/procedurals`, `./noise_data/masks`, and `./noise_data/noises`.
 
+    Images in `./noise_data/bases` must be in 8-bit RGB.\
     Images in `./noise_data/procedurals` must be in 16-bit Grayscale. This repository comes with outputs from Substance Designer.\
     Images in `./noise_data/masks` must be in 8-bit Grayscale.\
     Images in `./noise_data/noises` must be in 8-bit RGB. This repository comes with outputs from Adobe Photoshop, Glaze, and Nightshade.
 
-    All images must be in `jpg`, `jpeg`, or `png` format.\
+    All images must be 512x512 pixels and in `jpg`, `jpeg`, or `png` format.
 
-    1. Generate masks:
+    1. Generate masks and poison images:
         ```
-        python generate_masks.py --folder {./noise_data/procedurals} --output {./noise_data/masks}
+        python permute_noises_masks.py --bases {./noise_data/bases}
+                                       --procedurals {./noise_data/procedurals}
+                                       --noises {./noise_data/noises}
+                                       --masks {./noise_data/masks}
+                                       --alpha {0.15}
+                                       --output {./noise_data/results}
         ```
-        `--folder` is a directory containing starter images from which to create masks. Masks are formed by adjusting the gamma of the starter images such that the average pixel value over the resulting image is a target value $\mathcal{L}$ accurate to some tolerance $\epsilon$. The variable `targets` contains the list of $\mathcal{L}$ values that we used. Resulting images are stored in `--output`.
+        `--procedurals` is a directory containing starter images from which to create masks, which are saved to `--masks`. Masks are formed by adjusting the gamma of the starter images such that the average pixel value over the resulting image is a target value $\mathcal{L}$. The variable `TARGETS` contains the list of $\mathcal{L}$ values that we used.
 
-        For the analysis script to function properly, file names in `--folder` must not contain underscores (`_`).
-
-    2. Poison an image:
-        ```
-        python permute_noises_masks.py --image <filename> --noises {./noise_data/noises} --masks {./noise_data/masks} --output {./noise_data/results}
-        ```
-        `--output` will contain all combinations $c$ between images $n$ in `--noises` and $m$ `--masks` placed over `--image` $b$ according to this formula:
+        `--output` will contain all combinations $c$ between images in `--noises` ($n$) and `--masks` ($m$) placed over images $b$ in `--bases` according to this formula:
         $$
-        c = \text{Clip}(b + n \odot (0.15 * m), 0, 255)
+        c = \text{Clip}(b + n \odot (\alpha * m), 0, 255)
         $$
-        where $c, b, n$ are in the range [0, 255] and $m$ is in the range [0.0, 1.0].
+        where pixels in $c, b, n$ are in the range [0, 255], and $\alpha$ and pixels in $m$ are in the range [0.0, 1.0].
 
-        For the analysis script to function properly, file names in `--noises` must not contain underscores (`_`).
+        For the analysis script to function properly, file names in `--bases`, `--procedurals`, and `--noises`, must not contain underscores (`_`).
 
-        Though not required, `--masks` should be the same directory as `--output` from the previous step.
-
-    3. Process the output of the previous step with LightShed.
+    2. Process the output of the previous step with LightShed.
     
         This requires access to LightShed, which is not part of this repository. However, we have provided a sample CSV output (`detection_analytics.csv`) to use in the next step.
 
-    4. Analyze LightShed output:
+    3. Analyze LightShed output:
         ```
         python lightshed_analysis.py --csv <filename>
         ```
