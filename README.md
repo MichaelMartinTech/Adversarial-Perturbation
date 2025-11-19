@@ -36,7 +36,7 @@ This project requires two files not published to this repository in compliance w
 
 ## Running
 
-4. RQ1 - Visualizing Latent Clustering
+- RQ1 - Visualizing Latent Clustering
 
     _How do image models view original images compared to their Glazed or Shaded counterparts?_
     ```
@@ -48,7 +48,7 @@ This project requires two files not published to this repository in compliance w
 
     For proper color coding, file names should contain the substring `glazed` for Glazed images, `shaded` for Shaded images, and both substrings if both poisoning techniques are used.
 
-5. RQ2 - Visualizing Feature and Latent Activations
+- RQ2 - Visualizing Feature and Latent Activations
 
     _What do poison detection models look for?_
     ```
@@ -58,7 +58,7 @@ This project requires two files not published to this repository in compliance w
 
     This visualizes activations of the first 10 channels of each of the 5 encoding convolutional layers of LightShed.
 
-6. RQ3 - Improving Perturbation Techniques
+- RQ3 - Improving Perturbation Techniques
 
     _What poisoning techniques, if any, can reliably avoid detection?_
     
@@ -68,13 +68,15 @@ This project requires two files not published to this repository in compliance w
     Images in `./noise_data/masks` must be in 8-bit Grayscale.\
     Images in `./noise_data/noises` must be in 8-bit RGB. This repository comes with outputs from Adobe Photoshop, Glaze, and Nightshade.
 
-    All images must be in `jpg`, `jpeg`, or `png` format.
+    All images must be in `jpg`, `jpeg`, or `png` format.\
 
     1. Generate masks:
         ```
         python generate_masks.py --folder {./noise_data/procedurals} --output {./noise_data/masks}
         ```
         `--folder` is a directory containing starter images from which to create masks. Masks are formed by adjusting the gamma of the starter images such that the average pixel value over the resulting image is a target value $\mathcal{L}$ accurate to some tolerance $\epsilon$. The variable `targets` contains the list of $\mathcal{L}$ values that we used. Resulting images are stored in `--output`.
+
+        For the analysis script to function properly, file names in `--folder` must not contain underscores (`_`).
 
     2. Poison an image:
         ```
@@ -86,9 +88,13 @@ This project requires two files not published to this repository in compliance w
         $$
         where $c, b, n$ are in the range [0, 255] and $m$ is in the range [0.0, 1.0].
 
+        For the analysis script to function properly, file names in `--noises` must not contain underscores (`_`).
+
+        Though not required, `--masks` should be the same directory as `--output` from the previous step.
+
     3. Process the output of the previous step with LightShed.
     
-        This requires access to LightShed, which is not part of this repository. However, we have provided a sample CSV output to use in the next step.
+        This requires access to LightShed, which is not part of this repository. However, we have provided a sample CSV output (`detection_analytics.csv`) to use in the next step.
 
     4. Analyze LightShed output:
         ```

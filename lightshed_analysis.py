@@ -1,6 +1,8 @@
 import os
 import argparse
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -67,6 +69,13 @@ if __name__ == '__main__':
         
         for key, value in lightness_detect_rate.items():
             print(f'Detection rate of {key}: {sum(value) / len(value) * 100}%')
+
+        fig, ax = plt.subplots()
+        ax.set_ylabel('Shannon Entropy of Reconstructed Poison')
+
+        bplot = ax.boxplot([value for _, value in noise_entropy.items()],
+                           tick_labels=[key for key in noise_entropy])
+        plt.show()
         
 
             
