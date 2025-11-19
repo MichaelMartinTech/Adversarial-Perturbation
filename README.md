@@ -89,9 +89,9 @@ Commands are displayed over multiple lines for legibility.
         `--procedurals` is a directory containing starter images from which to create masks, which are saved to `--masks`. Masks are formed by adjusting the gamma of the starter images such that the average pixel value over the resulting image is a target value $\mathcal{L}$. The variable `TARGETS` contains the list of $\mathcal{L}$ values that we used.
 
         `--output` will contain all combinations $c$ between images in `--noises` ($n$) and `--masks` ($m$) placed over images $b$ in `--bases` according to this formula:
-        $$
-        c = \text{Clip}(b + n \odot (\alpha * m), 0, 255)
-        $$
+
+        $c = \text{Clip}(b + n \odot (\alpha * m), 0, 255)$
+        
         where pixels in $c, b, n$ are in the range [0, 255], and $\alpha$ and pixels in $m$ are in the range [0.0, 1.0].
 
         For the analysis script to function properly, file names in `--bases`, `--procedurals`, and `--noises`, must not contain underscores (`_`).
