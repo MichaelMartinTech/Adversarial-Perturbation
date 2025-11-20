@@ -70,11 +70,33 @@ if __name__ == '__main__':
         for key, value in lightness_detect_rate.items():
             print(f'Detection rate of {key}: {sum(value) / len(value) * 100}%')
 
-        fig, ax = plt.subplots()
-        ax.set_ylabel('Shannon Entropy of Reconstructed Poison')
+        fig, ax = plt.subplots(1, 3)
 
-        bplot = ax.boxplot([value for _, value in noise_entropy.items()],
-                           tick_labels=[key for key in noise_entropy])
+        plt.suptitle('Shannon Entropy for Reconstructed Poison')
+
+        ax[0].boxplot([noise_entropy[key] for key in sorted(noise_entropy.keys())],
+                      tick_labels=[key for key in sorted(noise_entropy.keys())],
+                      showmeans=True, meanline=True)
+        ax[0].tick_params(axis='x', labelrotation=90)
+        ax[0].set_xlabel('Noise')
+        ax[0].set_ylabel('Entropy')
+
+        ax[1].boxplot([mask_entropy[key] for key in sorted(mask_entropy.keys())],
+                      tick_labels=[key for key in sorted(mask_entropy.keys())],
+                      showmeans=True, meanline=True)
+        ax[1].tick_params(axis='x', labelrotation=90)
+        ax[1].set_xlabel('Mask')
+        ax[1].set_ylabel('Entropy')
+
+        ax[2].boxplot([lightness_entropy[key] for key in sorted(lightness_entropy.keys())],
+                      tick_labels=[key for key in sorted(lightness_entropy.keys())],
+                      showmeans=True, meanline=True)
+        ax[2].tick_params(axis='x', labelrotation=90)
+        ax[2].set_xlabel('Lightness')
+        ax[2].set_ylabel('Entropy')
+
+        fig.align_xlabels()
+        plt.tight_layout()
         plt.show()
         
 
