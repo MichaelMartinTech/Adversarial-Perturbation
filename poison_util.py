@@ -99,7 +99,7 @@ if __name__ == '__main__':
     except ValueError:
         print('alpha must be between 0.0 and 1.0 inclusive')   
     if not 0 <= alpha <= 1:
-        raise ValueError('alpha must be between 0 and 1 inclusive')
+        raise ValueError('alpha must be between 0.0 and 1.0 inclusive')
     
     # Create destination folder
     os.makedirs(arg_list.masks, exist_ok=True)

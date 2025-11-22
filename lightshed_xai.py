@@ -73,8 +73,13 @@ if __name__ == '__main__':
         if not arg_list.images:
             print('activation mode requires --images argument')
             quit()
+        
         # Load image
         images, file_names = load_multi_images(arg_list.images)
+
+        if len(file_names) < 1:
+            print('No valid images provided')
+            quit()
 
         # Visualize Activations
         activations = {}
@@ -111,8 +116,8 @@ if __name__ == '__main__':
                     fmap = tensor[current_index, j].cpu()
                     ax.imshow(fmap, cmap='viridis')
                     ax.axis('off')
-                    ax.set_title(f'L{i+1}, Ch{j+1}', fontsize=8)
-            fig.suptitle(f'Activations per Layer for {file_names[current_index]}')
+                    ax.set_title(f'L{i+1}, Ch{j+1}', fontsize=10)
+            fig.suptitle(f'Activations per Layer for {file_names[current_index]}\n{swipe_instruct}')
             fig.canvas.draw_idle()
             plt.tight_layout()
 
@@ -126,6 +131,7 @@ if __name__ == '__main__':
                 show_feature_maps()
 
         num_images = next(iter(activations.values())).shape[0]
+        swipe_instruct = '(Press Left or Right keys to switch images)' if num_images > 1 else ''
        
         fig.canvas.mpl_connect('key_press_event', on_key)
         show_feature_maps()

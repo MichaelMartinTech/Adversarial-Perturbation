@@ -58,11 +58,11 @@ Commands are displayed over multiple lines for legibility.
     ```
     python lightshed_xai.py --pth <*.pth> 
                             --mode activation 
-                            --image <filename>
+                            --images <file1_path> [file2_path] [...]
     ```
     We used individual images from the `./tsne_data` folder for the `--image` argument. Images must be in `jpg`, `jpeg`, or `png` format.
 
-    This visualizes activations of the first 10 channels of each of the 5 encoding convolutional layers of LightShed.
+    This visualizes activations of the first 10 channels of each of the 5 encoding convolutional layers of LightShed, for one image at a time. If more than one image is provided, switch views using the Left and Right arrow keys (it may take a few seconds to redraw).
 
 - **RQ3 - Improving Perturbation Techniques**
 

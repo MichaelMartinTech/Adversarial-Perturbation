@@ -112,8 +112,8 @@ if __name__ == '__main__':
         print_detect(lightness_detect_rate)
 
         plot_NML()
-        print(color_mapper)
-        plot_compressibility()
+        # print(color_mapper)
+        # plot_compressibility()
         
 
             
