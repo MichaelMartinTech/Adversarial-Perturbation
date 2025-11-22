@@ -12,9 +12,9 @@ from sklearn.manifold import TSNE
 import numpy as np
 import xai_utils as xu
 
+extensions = {'.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG'}
 
-def load_image(img_path):
-    extensions = {'.jpg', '.jpeg', '.png', '.JPG', '.JPEG', '.PNG'}
+def load_image(img_path: str, unsqueeze: bool = True) -> Image:    
     if os.path.splitext(img_path)[1] in extensions:
         try:
             img = Image.open(img_path).convert('RGB')
@@ -23,7 +23,8 @@ def load_image(img_path):
                 transforms.ToTensor()
             ])
             img = xform(img)
-            img = img.unsqueeze(0)
+            if unsqueeze:
+                img = img.unsqueeze(0)
             return img
         except Exception as e:
             print(f'Error loading {img_path}')
@@ -32,22 +33,22 @@ def load_image(img_path):
     else:
         print(img_path + ' is not a valid image file')
         return None
-        
-def show_feature_maps(tensors: dict, n=10):
-    fig, axes = plt.subplots(len(tensors), n, figsize=(15, 9))
-    for i, key in enumerate(tensors):
-        for j in range(n):
-            axes[i, j].imshow(tensors[key][0, j].cpu(), cmap='viridis')
-            axes[i, j].axis('off')
-            axes[i, j].set_title(f'L{i+1}, Ch{j+1}', fontsize=10)
-        plt.suptitle(f'Activations per Layer')
-    plt.tight_layout()
-    plt.show()
+    
+def load_multi_images(img_paths: list[str]) -> tuple[torch.Tensor, list[str]]:
+    images = []
+    file_names = []
+    for imgpath in img_paths:
+        img = load_image(imgpath, unsqueeze=False)
+        if img is not None:
+            images.append(img)
+            file_names.append(os.path.basename(imgpath))
+    return torch.stack(images), file_names
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--pth', required=True, help='The path to the checkpoint file')
-    parser.add_argument('--image', help='The path to the input image')
+    parser.add_argument('--images', nargs='+', help='The path(s) to the input image(s)')
     parser.add_argument('--folder', help='The path to the directory containing input images')
     parser.add_argument('--mode', default='activation', 
                         help="The XAI method to use. Valid arguments: 'activation', 'tsne', 'filter'")
@@ -69,11 +70,11 @@ if __name__ == '__main__':
     generator.eval()
 
     if arg_list.mode == 'activation':
-        if not arg_list.image:
-            print('activation mode requires --image argument')
+        if not arg_list.images:
+            print('activation mode requires --images argument')
             quit()
         # Load image
-        img = load_image(arg_list.image)
+        images, file_names = load_multi_images(arg_list.images)
 
         # Visualize Activations
         activations = {}
@@ -92,13 +93,44 @@ if __name__ == '__main__':
         
         # Forward pass
         with torch.no_grad():
-            img = img.to(device)
-            poison = generator(img)
+            images = images.to(device)
+            poison = generator(images)
         
-        img = img.cpu()
+        images = images.cpu()
         poison = poison.cpu()
+        num_layers = len(activations)
 
-        show_feature_maps(activations)
+        fig = plt.figure(figsize=(15,9))
+        current_index = 0
+
+        def show_feature_maps(n=10):
+            fig.clear()
+            for i, (_, tensor) in enumerate(activations.items()):
+                for j in range(n):
+                    ax = fig.add_subplot(num_layers, n, i * n + j + 1)
+                    fmap = tensor[current_index, j].cpu()
+                    ax.imshow(fmap, cmap='viridis')
+                    ax.axis('off')
+                    ax.set_title(f'L{i+1}, Ch{j+1}', fontsize=8)
+            fig.suptitle(f'Activations per Layer for {file_names[current_index]}')
+            fig.canvas.draw_idle()
+            plt.tight_layout()
+
+        def on_key(event):
+            global current_index
+            if event.key == 'right':
+                current_index = (current_index + 1) % num_images
+                show_feature_maps()
+            elif event.key == 'left':
+                current_index = (current_index - 1) % num_images
+                show_feature_maps()
+
+        num_images = next(iter(activations.values())).shape[0]
+       
+        fig.canvas.mpl_connect('key_press_event', on_key)
+        show_feature_maps()
+
+        plt.show()
 
     elif arg_list.mode == 'tsne':
         if not arg_list.folder:
