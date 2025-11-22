@@ -49,7 +49,7 @@ def generate_masks(p_dir: str, m_dir: str) -> None:
             for t in TARGETS:
                 result = gamma_bin_search(f_img, target=t)
                 suffix = int(t * 100)
-                result.save(f'{os.path.join(m_dir, f_name)}_L{suffix:02d}.png')
+                result.save(f'{os.path.join(m_dir, f_name)}_L{suffix:02d}.png', optimize=True)
 
 # Permute through base images, noises, and masks
 def permute_noises_masks(b_dir: str, n_dir: str, m_dir: str, out_dir: str, alpha: float) -> None:
@@ -74,7 +74,7 @@ def permute_noises_masks(b_dir: str, n_dir: str, m_dir: str, out_dir: str, alpha
 
                             # Save image
                             comp_img = Image.fromarray(comp_arr, mode='RGB')
-                            comp_img.save(f'{out_dir}/{base_name}_{ptrb_name}_{mask_name}.png')
+                            comp_img.save(f'{out_dir}/{base_name}_{ptrb_name}_{mask_name}.png', optimize=True)
 
 
 if __name__ == '__main__':

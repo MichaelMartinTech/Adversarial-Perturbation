@@ -1,5 +1,6 @@
 import torch
 from enum import Enum
+import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from PIL import Image
 import os
@@ -46,13 +47,13 @@ class Plot_Colors(str, Enum):
     NS_GL = 'xkcd:azure'
 
 
-def is_shaded_glazed(file_name: str) -> str:
+def is_shaded_glazed(file_name: str) -> bool:
     return 'glazed' in file_name and 'shaded' in file_name
 
-def is_glazed(file_name: str) -> str:
+def is_glazed(file_name: str) -> bool:
     return 'glazed' in file_name
 
-def is_shaded(file_name: str) -> str:
+def is_shaded(file_name: str) -> bool:
     return 'shaded' in file_name
 
 MPATCHES = [
@@ -63,3 +64,23 @@ MPATCHES = [
 ]
 
 PERPLEXITY = 20
+
+median_handle = plt.Line2D([], [], color='red', linewidth=1, label='Median')
+mean_handle = plt.Line2D([], [], color='green', linewidth=1, linestyle='dashed', label='Mean')
+
+BOX_LEGEND_HANDLES = [median_handle, mean_handle]
+
+GENERAL_COLOR_LIST = [
+    'red',
+    'orange',
+    'gold',
+    'green',
+    'blue',
+    'darkviolet',
+    'hotpink',
+    'yellowgreen',
+    'mediumseagreen',
+    'cyan',
+    'dodgerblue',
+    'mediumpurple'
+]
