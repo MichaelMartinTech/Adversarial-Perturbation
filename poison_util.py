@@ -79,12 +79,12 @@ def permute_noises_masks(b_dir: str, n_dir: str, m_dir: str, out_dir: str, alpha
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--bases', default='./noise_data/bases', help='Folder containing base images')
-    parser.add_argument('--procedurals', default='./noise_data/procedurals', help='Folder containing procedural noises')
-    parser.add_argument('--noises', default='./noise_data/noises', help='Folder containing noisy images')
-    parser.add_argument('--masks', default='./noise_data/masks', help='Folder containing masks')
+    parser.add_argument('--bases', default=os.path.join(os.getcwd(), 'noise_data', 'bases'), help='Folder containing base images')
+    parser.add_argument('--procedurals', default=os.path.join(os.getcwd(), 'noise_data', 'procedurals'), help='Folder containing procedural noises')
+    parser.add_argument('--noises', default=os.path.join(os.getcwd(), 'noise_data', 'noises'), help='Folder containing noisy images')
+    parser.add_argument('--masks', default=os.path.join(os.getcwd(), 'noise_data', 'masks'), help='Folder containing masks')
     parser.add_argument('--alpha', default='0.15', help='Master opacity for noises added to images')
-    parser.add_argument('--output', default='./noise_data/results', help='Folder containing output images')
+    parser.add_argument('--output', default=os.path.join(os.getcwd(), 'noise_data', 'results'), help='Folder containing output images')
     arg_list = parser.parse_args()
 
     # Error handling

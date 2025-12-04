@@ -79,12 +79,12 @@ Commands are displayed over multiple lines for legibility.
 
     1. Generate masks and poison images:
         ```
-        python permute_noises_masks.py --bases {./noise_data/bases}
-                                       --procedurals {./noise_data/procedurals}
-                                       --noises {./noise_data/noises}
-                                       --masks {./noise_data/masks}
-                                       --alpha {0.15}
-                                       --output {./noise_data/results}
+        python poison_util.py --bases {./noise_data/bases}
+                              --procedurals {./noise_data/procedurals}
+                              --noises {./noise_data/noises}
+                              --masks {./noise_data/masks}
+                              --alpha {0.15}
+                              --output {./noise_data/results}
         ```
         `--procedurals` is a directory containing starter images from which to create masks, which are saved to `--masks`. Masks are formed by adjusting the gamma of the starter images such that the average pixel value over the resulting image is a target value $\mathcal{L}$. The variable `TARGETS` contains the list of $\mathcal{L}$ values that we used.
 

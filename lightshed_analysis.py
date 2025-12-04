@@ -32,7 +32,7 @@ def print_detect(struct: dict) -> None:
         print(f'Detection rate of {key}: {sum(struct[key]) / len(struct[key]) * 100}%')
 
 def plot_NML() -> None:
-    fig, ax = plt.subplots(1, 3)
+    fig, ax = plt.subplots(1, 3, figsize=(15, 5))
 
     plt.suptitle('Shannon Entropy for Reconstructed Poison')
 
@@ -57,6 +57,7 @@ def plot_NML() -> None:
     fig.legend(handles=BOX_LEGEND_HANDLES, loc='center left')
 
     plt.tight_layout()
+    fig.subplots_adjust(left=0.18, wspace=0.4)
     plt.show()
 
 def plot_compressibility() -> None:
@@ -68,7 +69,7 @@ def plot_compressibility() -> None:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--csv', required=True, help='The path to the csv output of LightShed to analyze')
-    parser.add_argument('--masks', default='./noise_data/masks', help='Directory containing masks')
+    parser.add_argument('--masks', default=os.path.join(os.getcwd(), 'noise_data', 'masks'), help='Directory containing masks')
     arg_list = parser.parse_args()
 
     if not os.path.exists(arg_list.csv) and not os.path.splitext(arg_list.csv)[1] == '.csv':
